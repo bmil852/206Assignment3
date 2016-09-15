@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -53,6 +54,14 @@ public class VoxspellMainGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				createAndShowGUI(new QuizGUI());
+				repaint();
+			}
+		});
+		
+		_settingsButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				createAndShowGUI(new SettingsGUI());
 				repaint();
 			}
 		});
@@ -209,6 +218,55 @@ public class VoxspellMainGUI extends JPanel {
 			layout.putConstraint(SpringLayout.VERTICAL_CENTER, accuracyLabel, 0, SpringLayout.VERTICAL_CENTER, levelLabel);
 			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, accuracyLabel, 0, SpringLayout.HORIZONTAL_CENTER, _accuracyOne);
 			
+			setPreferredSize(new Dimension(400, 500));
+			
+			//Add action listeners
+			_returnButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createAndShowGUI(new VoxspellMainGUI());
+					repaint();
+				}
+			});
+		}
+		
+	}
+	
+	public class SettingsGUI extends JPanel {
+		
+		private JButton _returnButton = new JButton();
+		private String[] voiceOptions = new String[]{"Voice 1", "Voice 2"};
+		private JComboBox<String> _voiceBox = new JComboBox<>(voiceOptions);
+		
+		public SettingsGUI() {
+			
+			//Create image settings button
+			FileHandler fh = new FileHandler();
+			BufferedImage settingsImage = null;
+			try {
+				settingsImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			_returnButton = new JButton(new ImageIcon(settingsImage));
+			
+			//Construct the GUI
+			SpringLayout layout = new SpringLayout();
+			setLayout(layout);
+			add(_voiceBox);
+			add(_returnButton);
+			JLabel voiceLabel = new JLabel("<HTML><U>Select Voice: </U></HTML>");
+			add(voiceLabel);
+			//Center the voice choices box
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _voiceBox, 0, SpringLayout.HORIZONTAL_CENTER, this);
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _voiceBox, 0, SpringLayout.VERTICAL_CENTER, this);
+			//Put return putton in top right corner
+			layout.putConstraint(SpringLayout.NORTH, _returnButton, 0, SpringLayout.NORTH, this);
+			layout.putConstraint(SpringLayout.EAST, _returnButton, 0, SpringLayout.EAST, this);
+			//Put voice label above voice choices box
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, voiceLabel, 0, SpringLayout.HORIZONTAL_CENTER, _voiceBox);
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, voiceLabel, -30, SpringLayout.VERTICAL_CENTER, _voiceBox);
 			setPreferredSize(new Dimension(400, 500));
 			
 			//Add action listeners
