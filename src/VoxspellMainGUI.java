@@ -1,10 +1,12 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -15,7 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 @SuppressWarnings("serial")
@@ -25,6 +27,7 @@ public class VoxspellMainGUI extends JPanel {
 	private JButton _startButton;
 	private JButton _settingsButton;
 	private static int[][] _stats = new int[10][3];
+	private static int _highestLevelUnlocked = 0;
 	
 	public VoxspellMainGUI() {
 		_startButton = new JButton("Begin Quiz");
@@ -35,7 +38,6 @@ public class VoxspellMainGUI extends JPanel {
 		try {
 			settingsImage = ImageIO.read(fh.getFileAsInputStream("settings_icon.png"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		_settingsButton = new JButton(new ImageIcon(settingsImage));
@@ -57,9 +59,27 @@ public class VoxspellMainGUI extends JPanel {
 		_startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_currentFrame.add(new QuizGUI());
-				setVisible(false);
-				repaint();
+				if (_highestLevelUnlocked == 0) {
+					//Let user select where to start from
+					String[] choices = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+					try {
+				    _highestLevelUnlocked = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Start at Level:",
+				        "Select Starting Level", JOptionPane.QUESTION_MESSAGE, null, // Use default icon
+				        choices, // Array of choices
+				        choices[0])); // Initial choice
+				    _currentFrame.add(new QuizGUI());
+					setVisible(false);
+					repaint();
+					} catch (NumberFormatException nfe) {
+						_currentFrame.add(new VoxspellMainGUI());
+						setVisible(false);
+						repaint();
+					}
+				} else {
+					_currentFrame.add(new QuizGUI());
+					setVisible(false);
+					repaint();
+				}
 			}
 		});
 		
@@ -123,14 +143,13 @@ public class VoxspellMainGUI extends JPanel {
 			try {
 				returnImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			_returnButton = new JButton(new ImageIcon(returnImage));
 			
 			//Create titles, underlined
 			JLabel levelLabel = new JLabel("<HTML><U>Level: </U></HTML>");
-			JLabel accuracyLabel = new JLabel("<HTML><U>Accuracy: </U></HTML>");
+			JLabel accuracyLabel = new JLabel("<HTML><U>Overall Accuracy: </U></HTML>");
 			JLabel completedLabel = new JLabel("<HTML><U>Completed: </U></HTML>");
 			
 			//Set level buttons;
@@ -151,6 +170,9 @@ public class VoxspellMainGUI extends JPanel {
 			for (JButton button : buttonList) {
 				i++;
 				button.setText("Level " + i + "  ");
+				if (i > _highestLevelUnlocked) {
+					button.setEnabled(false);
+				}
 			}
 			buttonList.get(i-1).setText("Level " + i);
 			
@@ -190,10 +212,31 @@ public class VoxspellMainGUI extends JPanel {
 			for (JLabel label : completedList) {
 				if (!(_stats[index][2] == -1)){
 					if (_stats[index][2] == 0){
-						label.setText("fail");
+						
+						//Create cross icon
+						BufferedImage crossImage = null;
+						ImageIcon crossIcon = null;
+						try {
+							crossImage = ImageIO.read(fh.getFileAsInputStream("cross_icon.png"));
+							crossIcon = new ImageIcon(crossImage);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						label.setText("");
+						label.setIcon(crossIcon);
 					}
 					else{
-						label.setText("pass");
+						//Create tick icon
+						BufferedImage tickImage = null;
+						ImageIcon tickIcon = null;
+						try {
+							tickImage = ImageIO.read(fh.getFileAsInputStream("tick_icon.png"));
+							tickIcon = new ImageIcon(tickImage);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						label.setText("");
+						label.setIcon(tickIcon);
 					}
 					
 				}
@@ -224,12 +267,12 @@ public class VoxspellMainGUI extends JPanel {
 			
 			//Layout each button in line vertically and horizontally
 			for (int j = 3; j >= 0; j--) {
-				layout.putConstraint(SpringLayout.SOUTH, completedList.get(j), -15, SpringLayout.NORTH, completedList.get(j+1));
+				layout.putConstraint(SpringLayout.SOUTH, completedList.get(j), -20, SpringLayout.NORTH, completedList.get(j+1));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, buttonList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, accuracyList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 			}
 			for (int j = 5; j <= 9; j++) {
-				layout.putConstraint(SpringLayout.NORTH, completedList.get(j), 15, SpringLayout.SOUTH, completedList.get(j-1));
+				layout.putConstraint(SpringLayout.NORTH, completedList.get(j), 20, SpringLayout.SOUTH, completedList.get(j-1));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, buttonList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, accuracyList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 			}
@@ -269,6 +312,7 @@ public class VoxspellMainGUI extends JPanel {
 					public void actionPerformed(ActionEvent e) {
 					
 						_currentFrame.add(new QuestionsGUI());
+						_currentFrame.pack();
 						setVisible(false);
 						repaint();
 						
@@ -295,7 +339,6 @@ public class VoxspellMainGUI extends JPanel {
 			try {
 				settingsImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			_returnButton = new JButton(new ImageIcon(settingsImage));
@@ -334,36 +377,63 @@ public class VoxspellMainGUI extends JPanel {
 	public class QuestionsGUI extends JPanel {
 		
 		private JButton _backButton = new JButton();
-		private JTextArea _textBox = new JTextArea();
+		private JButton _speechButton = new JButton();
+		private JTextField _textBox = new JTextField("Enter Word:            ");
 		
 		public QuestionsGUI() {
 			
-			//Create image back button
+			//Create image and volume buttons
 			FileHandler fh = new FileHandler();
 			BufferedImage backImage = null;
+			BufferedImage volImage = null;
 			try {
 				backImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
+				volImage = ImageIO.read(fh.getFileAsInputStream("volume_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			_backButton = new JButton(new ImageIcon(backImage));
+			_speechButton = new JButton(new ImageIcon(volImage));
 			
 			//Construct the GUI
 			SpringLayout layout = new SpringLayout();
 			setLayout(layout);
+			_textBox.setForeground(Color.GRAY);
+			add(_textBox);
 			add(_backButton);
-			JLabel voiceLabel = new JLabel("<HTML><U>Test Your Spelling! </U></HTML>");
-			add(voiceLabel);
-			//Center the voice choices box
+			add(_speechButton);
+			JLabel scoreLabel = new JLabel("TO DO: SCORE");
+			JLabel progressLabel = new JLabel("TO DO: PROGRESS");
+			add(scoreLabel);
+			add(progressLabel);
+			//Center the text box
 			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _textBox, 0, SpringLayout.HORIZONTAL_CENTER, this);
 			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _textBox, 0, SpringLayout.VERTICAL_CENTER, this);
 			//Put return button in top right corner
 			layout.putConstraint(SpringLayout.NORTH, _backButton, 0, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.EAST, _backButton, 0, SpringLayout.EAST, this);
-			//Put voice label above voice choices box
+			//Put speech icon above text box
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _speechButton, 0, SpringLayout.HORIZONTAL_CENTER, _textBox);
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _speechButton, -35, SpringLayout.VERTICAL_CENTER, _textBox);
+			//Put score label in bottom left, progress label in bottom right
+			layout.putConstraint(SpringLayout.SOUTH, scoreLabel, -5, SpringLayout.SOUTH, this);
+			layout.putConstraint(SpringLayout.WEST, scoreLabel, 5, SpringLayout.WEST, this);
+			layout.putConstraint(SpringLayout.SOUTH, progressLabel, -5, SpringLayout.SOUTH, this);
+			layout.putConstraint(SpringLayout.EAST, progressLabel, -5, SpringLayout.EAST, this);
 			setPreferredSize(new Dimension(400, 500));
+			
+			//Focus listener for text box
+			_textBox.addFocusListener(new FocusListener() {
+				public void focusGained(FocusEvent e) {
+					_textBox.setText("");
+					_textBox.setForeground(Color.BLACK);
+				}
+				
+				public void focusLost(FocusEvent e) {
+					//do nothing
+				}
+			});
 			
 			//Add action listeners
 			_backButton.addActionListener(new ActionListener() {
@@ -395,20 +465,20 @@ public class VoxspellMainGUI extends JPanel {
 	}
 	
 	private void start(int testNo) {
-		
 		int correct = 0;
-		
 		for (int j = 0; j < 10; j++){
 			int choice = JOptionPane.showConfirmDialog(null, "Correct?", "Hmm", JOptionPane.YES_NO_OPTION);
 	        if (choice == JOptionPane.YES_OPTION) {
 		        correct++;
 	        }
 		}
-		
 		_stats[testNo][1] += correct;
 		_stats[testNo][0] += 10;
 		if (correct >= 9){
 			_stats[testNo][2] = 1;
+			if (testNo == _highestLevelUnlocked-1) {
+				_highestLevelUnlocked++;
+			}
 		}
 		else if (_stats[testNo][2] != 1){
 			_stats[testNo][2] = 0;
@@ -419,6 +489,7 @@ public class VoxspellMainGUI extends JPanel {
 	public static void main(String[] args) {
 		
 		//Reset Stats
+		_highestLevelUnlocked = 0;
 		for (int i = 0; i < 10; i++){
 			_stats[i][0] = 0;
 			_stats[i][1] = 0;
