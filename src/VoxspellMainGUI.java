@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -12,7 +13,9 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SpringLayout;
 
 @SuppressWarnings("serial")
@@ -21,6 +24,7 @@ public class VoxspellMainGUI extends JPanel {
 	private static JFrame _currentFrame;
 	private JButton _startButton;
 	private JButton _settingsButton;
+	private static int[][] _stats = new int[10][2];
 	
 	public VoxspellMainGUI() {
 		_startButton = new JButton("Begin Quiz");
@@ -44,7 +48,7 @@ public class VoxspellMainGUI extends JPanel {
 		//Center the start button
 		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _startButton, 0, SpringLayout.HORIZONTAL_CENTER, this);
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, _startButton, 0, SpringLayout.VERTICAL_CENTER, this);
-		//Put settings putton in top right corner
+		//Put settings button in top right corner
 		layout.putConstraint(SpringLayout.NORTH, _settingsButton, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, _settingsButton, 0, SpringLayout.EAST, this);
 		setPreferredSize(new Dimension(400, 500));
@@ -84,16 +88,17 @@ public class VoxspellMainGUI extends JPanel {
 		private JButton _levelEight = new JButton();
 		private JButton _levelNine = new JButton();
 		private JButton _levelTen = new JButton();
-		private JLabel _completedOne = new JLabel("--");
-		private JLabel _completedTwo = new JLabel("--");
-		private JLabel _completedThree = new JLabel("--");
-		private JLabel _completedFour = new JLabel("--");
-		private JLabel _completedFive = new JLabel("--");
-		private JLabel _completedSix = new JLabel("--");
-		private JLabel _completedSeven = new JLabel("--");
-		private JLabel _completedEight = new JLabel("--");
-		private JLabel _completedNine = new JLabel("--");
-		private JLabel _completedTen = new JLabel("--");
+		private JLabel _completedOne = new JLabel(Integer.toString(_stats[0][0]));
+		private JLabel _completedTwo = new JLabel(Integer.toString(_stats[1][0]));
+		private JLabel _completedThree = new JLabel(Integer.toString(_stats[2][0]));
+		private JLabel _completedFour = new JLabel(Integer.toString(_stats[3][0]));
+		private JLabel _completedFive = new JLabel(Integer.toString(_stats[4][0]));
+		private JLabel _completedSix = new JLabel(Integer.toString(_stats[5][0]));
+		private JLabel _completedSeven = new JLabel(Integer.toString(_stats[6][0]));
+		private JLabel _completedEight = new JLabel(Integer.toString(_stats[7][0]));
+		private JLabel _completedNine = new JLabel(Integer.toString(_stats[8][0]));
+		private JLabel _completedTen = new JLabel(Integer.toString(_stats[9][0]));
+		
 		private JLabel _accuracyOne = new JLabel("--");
 		private JLabel _accuracyTwo = new JLabel("--");
 		private JLabel _accuracyThree = new JLabel("--");
@@ -104,6 +109,20 @@ public class VoxspellMainGUI extends JPanel {
 		private JLabel _accuracyEight = new JLabel("--");
 		private JLabel _accuracyNine = new JLabel("--");
 		private JLabel _accuracyTen = new JLabel("--");
+		
+		
+		/**
+		private JLabel _accuracyOne = new JLabel(Integer.toString(_stats[0][1] / _stats[0][0]));
+		private JLabel _accuracyTwo = new JLabel(Integer.toString(_stats[1][1] / _stats[1][0]));
+		private JLabel _accuracyThree = new JLabel(Integer.toString(_stats[2][1] / _stats[2][0]));
+		private JLabel _accuracyFour = new JLabel(Integer.toString(_stats[3][1] / _stats[3][0]));
+		private JLabel _accuracyFive = new JLabel(Integer.toString(_stats[4][1] / _stats[4][0]));
+		private JLabel _accuracySix = new JLabel(Integer.toString(_stats[5][1] / _stats[5][0]));
+		private JLabel _accuracySeven = new JLabel(Integer.toString(_stats[6][1] / _stats[6][0]));
+		private JLabel _accuracyEight = new JLabel(Integer.toString(_stats[7][1] / _stats[7][0]));
+		private JLabel _accuracyNine = new JLabel(Integer.toString(_stats[8][1] / _stats[8][0]));
+		private JLabel _accuracyTen = new JLabel(Integer.toString(_stats[9][1] / _stats[9][0]));
+		**/
 		
 		//Button to return to main menu
 		private JButton _returnButton = new JButton();
@@ -126,6 +145,7 @@ public class VoxspellMainGUI extends JPanel {
 			JLabel completedLabel = new JLabel("<HTML><U>Completed: </U></HTML>");
 			
 			//Set level buttons;
+			
 			ArrayList<JButton> buttonList = new ArrayList<JButton>();
 			buttonList.add(_levelOne);
 			buttonList.add(_levelTwo);
@@ -137,6 +157,7 @@ public class VoxspellMainGUI extends JPanel {
 			buttonList.add(_levelEight);
 			buttonList.add(_levelNine);
 			buttonList.add(_levelTen);
+			
 			int i = 0;
 			for (JButton button : buttonList) {
 				i++;
@@ -145,7 +166,7 @@ public class VoxspellMainGUI extends JPanel {
 			buttonList.get(i-1).setText("Level " + i);
 			
 			//Set completion and accuracy labels;
-			ArrayList<JLabel> completedList = new ArrayList<JLabel>();
+			final ArrayList<JLabel> completedList = new ArrayList<JLabel>();
 			completedList.add(_completedOne);
 			completedList.add(_completedTwo);
 			completedList.add(_completedThree);
@@ -167,6 +188,14 @@ public class VoxspellMainGUI extends JPanel {
 			accuracyList.add(_accuracyEight);
 			accuracyList.add(_accuracyNine);
 			accuracyList.add(_accuracyTen);
+			
+			int index = 0;
+			for (JLabel label : accuracyList) {
+				if (!(_stats[index][0] == 0)){
+					label.setText(Integer.toString((_stats[index][1] / _stats[index][0]) * 100) + "%");
+				}
+				index++;
+			}
 			
 			//Construct the GUI
 			SpringLayout layout = new SpringLayout();
@@ -228,6 +257,18 @@ public class VoxspellMainGUI extends JPanel {
 					repaint();
 				}
 			});
+			
+			for (int j = 0; j < buttonList.size(); j++){
+				final int k = j;
+				buttonList.get(j).addActionListener(new ActionListener() {	
+					@Override
+					public void actionPerformed(ActionEvent e) {
+					
+						start(k);
+
+					}
+				});
+			}
 		}
 		
 	}
@@ -281,6 +322,51 @@ public class VoxspellMainGUI extends JPanel {
 		
 	}
 	
+	public class QuestionsGUI extends JPanel {
+		
+		private JButton _backButton = new JButton();
+		private JTextArea _textBox = new JTextArea();
+		
+		public QuestionsGUI() {
+			
+			//Create image back button
+			FileHandler fh = new FileHandler();
+			BufferedImage backImage = null;
+			try {
+				backImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			_backButton = new JButton(new ImageIcon(backImage));
+			
+			//Construct the GUI
+			SpringLayout layout = new SpringLayout();
+			setLayout(layout);
+			add(_backButton);
+			JLabel voiceLabel = new JLabel("<HTML><U>Test Your Spelling! </U></HTML>");
+			add(voiceLabel);
+			//Center the voice choices box
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _textBox, 0, SpringLayout.HORIZONTAL_CENTER, this);
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _textBox, 0, SpringLayout.VERTICAL_CENTER, this);
+			//Put return button in top right corner
+			layout.putConstraint(SpringLayout.NORTH, _backButton, 0, SpringLayout.NORTH, this);
+			layout.putConstraint(SpringLayout.EAST, _backButton, 0, SpringLayout.EAST, this);
+			//Put voice label above voice choices box
+			setPreferredSize(new Dimension(400, 500));
+			
+			//Add action listeners
+			_backButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					createAndShowGUI(new VoxspellMainGUI());
+					repaint();
+				}
+			});
+		}
+		
+	}
+	
 	public static void createAndShowGUI(JComponent pane) {
 		//Clear the current Frame
 		if (_currentFrame != null) {
@@ -296,7 +382,32 @@ public class VoxspellMainGUI extends JPanel {
 		
 	}
 	
+	private void start(int testNo) {
+
+		createAndShowGUI(new QuestionsGUI());
+		
+		int count = 0;
+		
+		for (int j = 0; j < 10; j++){
+			int choice = JOptionPane.showConfirmDialog(null, "Correct?", "Hmm", JOptionPane.YES_NO_OPTION);
+	        if (choice == JOptionPane.YES_OPTION) {
+		        count++;
+	        }
+		}
+		
+		_stats[testNo][1] += count;
+		_stats[testNo][0] += 10;
+
+	}
+	
 	public static void main(String[] args) {
+		
+		//Reset Stats
+		for (int i = 0; i < 10; i++){
+			_stats[i][0] = 0;
+			_stats[i][1] = 0;
+		}
+		
 		//Create and show the GUI
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
