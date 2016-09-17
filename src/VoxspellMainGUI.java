@@ -57,7 +57,8 @@ public class VoxspellMainGUI extends JPanel {
 		_startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				createAndShowGUI(new QuizGUI());
+				_currentFrame.add(new QuizGUI());
+				setVisible(false);
 				repaint();
 			}
 		});
@@ -65,7 +66,8 @@ public class VoxspellMainGUI extends JPanel {
 		_settingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				createAndShowGUI(new SettingsGUI());
+				_currentFrame.add(new SettingsGUI());
+				setVisible(false);
 				repaint();
 			}
 		});
@@ -110,24 +112,11 @@ public class VoxspellMainGUI extends JPanel {
 		private JLabel _accuracyNine = new JLabel("--");
 		private JLabel _accuracyTen = new JLabel("--");
 		
-		
-		/**
-		private JLabel _accuracyOne = new JLabel(Integer.toString(_stats[0][1] / _stats[0][0]));
-		private JLabel _accuracyTwo = new JLabel(Integer.toString(_stats[1][1] / _stats[1][0]));
-		private JLabel _accuracyThree = new JLabel(Integer.toString(_stats[2][1] / _stats[2][0]));
-		private JLabel _accuracyFour = new JLabel(Integer.toString(_stats[3][1] / _stats[3][0]));
-		private JLabel _accuracyFive = new JLabel(Integer.toString(_stats[4][1] / _stats[4][0]));
-		private JLabel _accuracySix = new JLabel(Integer.toString(_stats[5][1] / _stats[5][0]));
-		private JLabel _accuracySeven = new JLabel(Integer.toString(_stats[6][1] / _stats[6][0]));
-		private JLabel _accuracyEight = new JLabel(Integer.toString(_stats[7][1] / _stats[7][0]));
-		private JLabel _accuracyNine = new JLabel(Integer.toString(_stats[8][1] / _stats[8][0]));
-		private JLabel _accuracyTen = new JLabel(Integer.toString(_stats[9][1] / _stats[9][0]));
-		**/
-		
 		//Button to return to main menu
 		private JButton _returnButton = new JButton();
 		
 		public QuizGUI() {
+			
 			//Create Image return Button
 			FileHandler fh = new FileHandler();
 			BufferedImage returnImage = null;
@@ -192,7 +181,7 @@ public class VoxspellMainGUI extends JPanel {
 			int index = 0;
 			for (JLabel label : accuracyList) {
 				if (!(_stats[index][0] == 0)){
-					label.setText(Integer.toString((_stats[index][1] / _stats[index][0]) * 100) + "%");
+					label.setText(Double.toString((double)(_stats[index][1]) / (double)(_stats[index][0]) * (double)100) + "%");
 				}
 				index++;
 			}
@@ -253,7 +242,8 @@ public class VoxspellMainGUI extends JPanel {
 			_returnButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					createAndShowGUI(new VoxspellMainGUI());
+					_currentFrame.add(new VoxspellMainGUI());
+					setVisible(false);
 					repaint();
 				}
 			});
@@ -264,6 +254,10 @@ public class VoxspellMainGUI extends JPanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 					
+						_currentFrame.add(new QuestionsGUI());
+						setVisible(false);
+						repaint();
+						
 						start(k);
 
 					}
@@ -314,7 +308,8 @@ public class VoxspellMainGUI extends JPanel {
 			_returnButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					createAndShowGUI(new VoxspellMainGUI());
+					_currentFrame.add(new VoxspellMainGUI());
+					setVisible(false);
 					repaint();
 				}
 			});
@@ -338,6 +333,7 @@ public class VoxspellMainGUI extends JPanel {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			_backButton = new JButton(new ImageIcon(backImage));
 			
 			//Construct the GUI
@@ -359,7 +355,8 @@ public class VoxspellMainGUI extends JPanel {
 			_backButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					createAndShowGUI(new VoxspellMainGUI());
+					_currentFrame.add(new VoxspellMainGUI());
+					setVisible(false);
 					repaint();
 				}
 			});
@@ -383,8 +380,6 @@ public class VoxspellMainGUI extends JPanel {
 	}
 	
 	private void start(int testNo) {
-
-		createAndShowGUI(new QuestionsGUI());
 		
 		int count = 0;
 		
