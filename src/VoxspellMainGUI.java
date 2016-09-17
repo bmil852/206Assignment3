@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.SwingWorker;
 
 @SuppressWarnings("serial")
 public class VoxspellMainGUI extends JPanel {
@@ -401,16 +401,18 @@ public class VoxspellMainGUI extends JPanel {
 			FileHandler fh = new FileHandler();
 			BufferedImage backImage = null;
 			BufferedImage volImage = null;
+			BufferedImage enterImage = null;
 			try {
 				backImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 				volImage = ImageIO.read(fh.getFileAsInputStream("volume_icon.png"));
+				enterImage = ImageIO.read(fh.getFileAsInputStream("enter_icon.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
 			_backButton = new JButton(new ImageIcon(backImage));
 			_speechButton = new JButton(new ImageIcon(volImage));
-			_submitButton = new JButton(new ImageIcon(volImage));
+			_submitButton = new JButton(new ImageIcon(enterImage));
 			
 			//Construct the GUI
 			SpringLayout layout = new SpringLayout();
@@ -606,29 +608,33 @@ public class VoxspellMainGUI extends JPanel {
 
 	}
 	
-	public String executeCommand(String[] command) {
+	public void executeCommand(String[] command) {
 		
 		//A proxy for the linux bash commands that are required.
 
-	    StringBuffer out = new StringBuffer();
+	    BackgroundTask backgroundWorker = new BackgroundTask(command);
+	    backgroundWorker.execute();
 
-	    Process pro;
-	    try {
-	        pro = Runtime.getRuntime().exec(command);
-	        pro.waitFor();
-	        BufferedReader reader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+	}
+	
+	private class BackgroundTask extends SwingWorker<Void, Void> {
 
-	        String line = "";           
-	        while ((line = reader.readLine())!= null) {
-	            out.append(line + "\n");
-	        }
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-
-	    return out.toString();
-
+		String[] _str;
+		
+		public BackgroundTask(String[] str) {
+			_str = str;
+		}
+		
+		@Override
+		protected Void doInBackground() throws Exception {
+			
+			ProcessBuilder builder = new ProcessBuilder(_str);
+			Process process = builder.start();
+			process.waitFor();
+			
+			return null;
+		}
+		
 	}
 	
 	public static void main(String[] args) {
