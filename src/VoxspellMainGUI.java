@@ -287,8 +287,8 @@ public class VoxspellMainGUI extends JPanel {
 			}
 			for (int j = 0; j < 10; j++) {
 				layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, completedList.get(j), 0, SpringLayout.HORIZONTAL_CENTER, this);
-				layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, buttonList.get(j), -100, SpringLayout.HORIZONTAL_CENTER, completedList.get(j));
-				layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, accuracyList.get(j), 100, SpringLayout.HORIZONTAL_CENTER, completedList.get(j));
+				layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, buttonList.get(j), -120, SpringLayout.HORIZONTAL_CENTER, completedList.get(j));
+				layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, accuracyList.get(j), 120, SpringLayout.HORIZONTAL_CENTER, completedList.get(j));
 			}
 			
 			//Place titles above columns
@@ -367,7 +367,7 @@ public class VoxspellMainGUI extends JPanel {
 			//Center the voice choices box
 			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _voiceBox, 0, SpringLayout.HORIZONTAL_CENTER, this);
 			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _voiceBox, 0, SpringLayout.VERTICAL_CENTER, this);
-			//Put return putton in top right corner
+			//Put return button in top right corner
 			layout.putConstraint(SpringLayout.NORTH, _returnButton, 0, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.EAST, _returnButton, 0, SpringLayout.EAST, this);
 			//Put voice label above voice choices box
@@ -469,7 +469,7 @@ public class VoxspellMainGUI extends JPanel {
 			_speechButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+					String[] com = new String[] {"bash", "-c", "echo " + "Please spell " + _quizList.get(_currentWordIndex) + " | festival --tts" };
 					executeCommand(com);
 				}
 			});
@@ -513,14 +513,14 @@ public class VoxspellMainGUI extends JPanel {
 						repaint();
 					}
 					else{
-						String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+						String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 						executeCommand(com);
 					}
 
 				}
 			});
 			
-			
+			_currentFrame.getRootPane().setDefaultButton(_submitButton);
 		}
 		
 	}
@@ -584,7 +584,7 @@ public class VoxspellMainGUI extends JPanel {
 			wordList.remove(number);
 		}
 		
-		String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+		String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 		executeCommand(com);
 		
 		
