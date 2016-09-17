@@ -401,16 +401,18 @@ public class VoxspellMainGUI extends JPanel {
 			FileHandler fh = new FileHandler();
 			BufferedImage backImage = null;
 			BufferedImage volImage = null;
+			BufferedImage enterImage = null;
 			try {
 				backImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 				volImage = ImageIO.read(fh.getFileAsInputStream("volume_icon.png"));
+				enterImage = ImageIO.read(fh.getFileAsInputStream("enter_icon.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
 			_backButton = new JButton(new ImageIcon(backImage));
 			_speechButton = new JButton(new ImageIcon(volImage));
-			_submitButton = new JButton(new ImageIcon(volImage));
+			_submitButton = new JButton(new ImageIcon(enterImage));
 			
 			//Construct the GUI
 			SpringLayout layout = new SpringLayout();
