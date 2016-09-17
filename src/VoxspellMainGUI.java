@@ -484,7 +484,9 @@ public class VoxspellMainGUI extends JPanel {
 					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
 						String[] com = new String[] {"bash", "-c", "echo " + "correct" + " | festival --tts" };
 						executeCommand(com);
-						_currentScore++;
+						if (_attempt == 1) {
+							_currentScore++;
+						}
 						_attempt = 1;
 						_currentWordIndex++;
 						scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
