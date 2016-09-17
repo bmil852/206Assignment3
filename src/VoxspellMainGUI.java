@@ -4,7 +4,6 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -25,6 +24,7 @@ public class VoxspellMainGUI extends JPanel {
 	private JButton _startButton;
 	private JButton _settingsButton;
 	private static int[][] _stats = new int[10][3];
+	private static int _highestLevelUnlocked = 0;
 	
 	public VoxspellMainGUI() {
 		_startButton = new JButton("Begin Quiz");
@@ -35,7 +35,6 @@ public class VoxspellMainGUI extends JPanel {
 		try {
 			settingsImage = ImageIO.read(fh.getFileAsInputStream("settings_icon.png"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		_settingsButton = new JButton(new ImageIcon(settingsImage));
@@ -57,9 +56,27 @@ public class VoxspellMainGUI extends JPanel {
 		_startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_currentFrame.add(new QuizGUI());
-				setVisible(false);
-				repaint();
+				if (_highestLevelUnlocked == 0) {
+					//Let user select where to start from
+					String[] choices = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+					try {
+				    _highestLevelUnlocked = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Start at Level:",
+				        "Select Starting Level", JOptionPane.QUESTION_MESSAGE, null, // Use default icon
+				        choices, // Array of choices
+				        choices[0])); // Initial choice
+				    _currentFrame.add(new QuizGUI());
+					setVisible(false);
+					repaint();
+					} catch (NumberFormatException nfe) {
+						_currentFrame.add(new VoxspellMainGUI());
+						setVisible(false);
+						repaint();
+					}
+				} else {
+					_currentFrame.add(new QuizGUI());
+					setVisible(false);
+					repaint();
+				}
 			}
 		});
 		
@@ -123,14 +140,13 @@ public class VoxspellMainGUI extends JPanel {
 			try {
 				returnImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			_returnButton = new JButton(new ImageIcon(returnImage));
 			
 			//Create titles, underlined
 			JLabel levelLabel = new JLabel("<HTML><U>Level: </U></HTML>");
-			JLabel accuracyLabel = new JLabel("<HTML><U>Accuracy: </U></HTML>");
+			JLabel accuracyLabel = new JLabel("<HTML><U>Overall Accuracy: </U></HTML>");
 			JLabel completedLabel = new JLabel("<HTML><U>Completed: </U></HTML>");
 			
 			//Set level buttons;
@@ -151,6 +167,9 @@ public class VoxspellMainGUI extends JPanel {
 			for (JButton button : buttonList) {
 				i++;
 				button.setText("Level " + i + "  ");
+				if (i > _highestLevelUnlocked) {
+					button.setEnabled(false);
+				}
 			}
 			buttonList.get(i-1).setText("Level " + i);
 			
@@ -190,10 +209,31 @@ public class VoxspellMainGUI extends JPanel {
 			for (JLabel label : completedList) {
 				if (!(_stats[index][2] == -1)){
 					if (_stats[index][2] == 0){
-						label.setText("fail");
+						
+						//Create cross icon
+						BufferedImage crossImage = null;
+						ImageIcon crossIcon = null;
+						try {
+							crossImage = ImageIO.read(fh.getFileAsInputStream("cross_icon.png"));
+							crossIcon = new ImageIcon(crossImage);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						label.setText("");
+						label.setIcon(crossIcon);
 					}
 					else{
-						label.setText("pass");
+						//Create tick icon
+						BufferedImage tickImage = null;
+						ImageIcon tickIcon = null;
+						try {
+							tickImage = ImageIO.read(fh.getFileAsInputStream("tick_icon.png"));
+							tickIcon = new ImageIcon(tickImage);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						label.setText("");
+						label.setIcon(tickIcon);
 					}
 					
 				}
@@ -224,12 +264,12 @@ public class VoxspellMainGUI extends JPanel {
 			
 			//Layout each button in line vertically and horizontally
 			for (int j = 3; j >= 0; j--) {
-				layout.putConstraint(SpringLayout.SOUTH, completedList.get(j), -15, SpringLayout.NORTH, completedList.get(j+1));
+				layout.putConstraint(SpringLayout.SOUTH, completedList.get(j), -20, SpringLayout.NORTH, completedList.get(j+1));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, buttonList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, accuracyList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 			}
 			for (int j = 5; j <= 9; j++) {
-				layout.putConstraint(SpringLayout.NORTH, completedList.get(j), 15, SpringLayout.SOUTH, completedList.get(j-1));
+				layout.putConstraint(SpringLayout.NORTH, completedList.get(j), 20, SpringLayout.SOUTH, completedList.get(j-1));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, buttonList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 				layout.putConstraint(SpringLayout.VERTICAL_CENTER, accuracyList.get(j), 0, SpringLayout.VERTICAL_CENTER, completedList.get(j));
 			}
@@ -295,7 +335,6 @@ public class VoxspellMainGUI extends JPanel {
 			try {
 				settingsImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			_returnButton = new JButton(new ImageIcon(settingsImage));
@@ -344,7 +383,6 @@ public class VoxspellMainGUI extends JPanel {
 			try {
 				backImage = ImageIO.read(fh.getFileAsInputStream("return_icon.png"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -395,30 +433,30 @@ public class VoxspellMainGUI extends JPanel {
 	}
 	
 	private void start(int testNo) {
-		
 		int correct = 0;
-		
 		for (int j = 0; j < 10; j++){
 			int choice = JOptionPane.showConfirmDialog(null, "Correct?", "Hmm", JOptionPane.YES_NO_OPTION);
 	        if (choice == JOptionPane.YES_OPTION) {
 		        correct++;
 	        }
 		}
-		
 		_stats[testNo][1] += correct;
 		_stats[testNo][0] += 10;
 		if (correct >= 9){
 			_stats[testNo][2] = 1;
+			if (testNo == _highestLevelUnlocked-1) {
+				_highestLevelUnlocked++;
+			}
 		}
 		else if (_stats[testNo][2] != 1){
 			_stats[testNo][2] = 0;
 		}
-
 	}
 	
 	public static void main(String[] args) {
 		
 		//Reset Stats
+		_highestLevelUnlocked = 0;
 		for (int i = 0; i < 10; i++){
 			_stats[i][0] = 0;
 			_stats[i][1] = 0;
