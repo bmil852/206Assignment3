@@ -483,7 +483,6 @@ public class VoxspellMainGUI extends JPanel {
 		else if (_stats[testNo][2] != 1){
 			_stats[testNo][2] = 0;
 		}
-
 	}
 	
 	public static void main(String[] args) {
