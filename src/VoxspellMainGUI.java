@@ -5,8 +5,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -28,6 +32,11 @@ public class VoxspellMainGUI extends JPanel {
 	private JButton _settingsButton;
 	private static int[][] _stats = new int[10][3];
 	private static int _highestLevelUnlocked = 0;
+	private static ArrayList<String> _quizList;
+	private static int _currentWordIndex;
+	private static int _currentLevel;
+	private static int _currentScore;
+	private static int _attempt;
 	
 	public VoxspellMainGUI() {
 		_startButton = new JButton("Begin Quiz");
@@ -316,6 +325,11 @@ public class VoxspellMainGUI extends JPanel {
 						setVisible(false);
 						repaint();
 						
+						_currentLevel = k;
+						_currentWordIndex = 0;
+						_currentScore = 0;
+						_attempt = 1;
+						
 						start(k);
 
 					}
@@ -378,7 +392,8 @@ public class VoxspellMainGUI extends JPanel {
 		
 		private JButton _backButton = new JButton();
 		private JButton _speechButton = new JButton();
-		private JTextField _textBox = new JTextField("Enter Word:            ");
+		private JButton _submitButton = new JButton();
+		private JTextField _textBox = new JTextField("Enter Word:            ", 12);
 		
 		public QuestionsGUI() {
 			
@@ -395,6 +410,7 @@ public class VoxspellMainGUI extends JPanel {
 			
 			_backButton = new JButton(new ImageIcon(backImage));
 			_speechButton = new JButton(new ImageIcon(volImage));
+			_submitButton = new JButton(new ImageIcon(volImage));
 			
 			//Construct the GUI
 			SpringLayout layout = new SpringLayout();
@@ -403,8 +419,9 @@ public class VoxspellMainGUI extends JPanel {
 			add(_textBox);
 			add(_backButton);
 			add(_speechButton);
-			JLabel scoreLabel = new JLabel("TO DO: SCORE");
-			JLabel progressLabel = new JLabel("TO DO: PROGRESS");
+			add(_submitButton);
+			final JLabel scoreLabel = new JLabel("SCORE: 0 out of 0");
+			final JLabel progressLabel = new JLabel("PROGRESS: 0 of 10");
 			add(scoreLabel);
 			add(progressLabel);
 			//Center the text box
@@ -416,6 +433,9 @@ public class VoxspellMainGUI extends JPanel {
 			//Put speech icon above text box
 			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _speechButton, 0, SpringLayout.HORIZONTAL_CENTER, _textBox);
 			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _speechButton, -35, SpringLayout.VERTICAL_CENTER, _textBox);
+			//Put submit icon above text box
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, _submitButton, 100, SpringLayout.HORIZONTAL_CENTER, _textBox);
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, _submitButton, 0, SpringLayout.VERTICAL_CENTER, _textBox);
 			//Put score label in bottom left, progress label in bottom right
 			layout.putConstraint(SpringLayout.SOUTH, scoreLabel, -5, SpringLayout.SOUTH, this);
 			layout.putConstraint(SpringLayout.WEST, scoreLabel, 5, SpringLayout.WEST, this);
@@ -435,6 +455,7 @@ public class VoxspellMainGUI extends JPanel {
 				}
 			});
 			
+			
 			//Add action listeners
 			_backButton.addActionListener(new ActionListener() {
 				@Override
@@ -444,6 +465,62 @@ public class VoxspellMainGUI extends JPanel {
 					repaint();
 				}
 			});
+			
+			_speechButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+					executeCommand(com);
+				}
+			});
+			
+			
+			_submitButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
+						String[] com = new String[] {"bash", "-c", "echo " + "correct" + " | festival --tts" };
+						executeCommand(com);
+						_currentScore++;
+						_attempt = 1;
+						_currentWordIndex++;
+						scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
+						progressLabel.setText("PROGRESS: " + _currentWordIndex + " of 10");
+					}
+					else{
+						String[] com = new String[] {"bash", "-c", "echo " + "incorrect" + " | festival --tts" };
+						executeCommand(com);
+						if (_attempt == 1){
+							_attempt++;
+							com = new String[] {"bash", "-c", "echo " + "Try once more" + " | festival --tts" };
+							executeCommand(com);
+						}
+						else{
+							_currentWordIndex++;
+							progressLabel.setText("PROGRESS: " + _currentWordIndex + " of 10");
+							scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
+							_attempt = 1;
+						}
+						
+					}
+					
+					
+					if (_currentWordIndex == 10){
+						finishQuiz();
+						_currentFrame.add(new QuizGUI());
+						setVisible(false);
+						repaint();
+					}
+					else{
+						String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+						executeCommand(com);
+					}
+
+				}
+			});
+			
+			
 		}
 		
 	}
@@ -465,24 +542,93 @@ public class VoxspellMainGUI extends JPanel {
 	}
 	
 	private void start(int testNo) {
-		int correct = 0;
-		for (int j = 0; j < 10; j++){
-			int choice = JOptionPane.showConfirmDialog(null, "Correct?", "Hmm", JOptionPane.YES_NO_OPTION);
-	        if (choice == JOptionPane.YES_OPTION) {
-		        correct++;
-	        }
+
+		ArrayList<String> wordList = new ArrayList<String>();
+		_quizList = new ArrayList<String>();
+		
+		try {
+
+			BufferedReader br = new BufferedReader(new FileReader("NZCER-spelling-lists.txt"));
+
+			String currentWord;
+
+			while((currentWord = br.readLine())!= null){
+				if(currentWord.equals("%Level " + (testNo+1))){
+					break;
+				}
+			}
+			while((currentWord = br.readLine())!= null){
+				if(currentWord.charAt(0)=='%'){
+					break;
+				}
+				else{
+					currentWord = currentWord.trim();
+					if(currentWord.length() > 0){
+						wordList.add(currentWord);
+					}
+				}
+			}
+			br.close();
+
 		}
-		_stats[testNo][1] += correct;
-		_stats[testNo][0] += 10;
-		if (correct >= 9){
-			_stats[testNo][2] = 1;
-			if (testNo == _highestLevelUnlocked-1) {
+		catch(IOException e){
+			e.printStackTrace();
+		}
+
+		_quizList.clear();
+		Random rn = new Random();
+		
+		for (int j = 0; j < 10; j++){
+			int number = rn.nextInt(wordList.size());
+			_quizList.add(wordList.get(number));
+			wordList.remove(number);
+		}
+		
+		String[] com = new String[] {"bash", "-c", "echo " + _quizList.get(_currentWordIndex) + " | festival --tts" };
+		executeCommand(com);
+		
+		
+	}
+	
+	private void finishQuiz(){
+		
+		_stats[_currentLevel][1] += _currentScore;
+		_stats[_currentLevel][0] += 10;
+		if (_currentScore >= 9){
+			_stats[_currentLevel][2] = 1;
+			if (_currentLevel == _highestLevelUnlocked-1) {
 				_highestLevelUnlocked++;
 			}
 		}
-		else if (_stats[testNo][2] != 1){
-			_stats[testNo][2] = 0;
+		else if (_stats[_currentLevel][2] != 1){
+			_stats[_currentLevel][2] = 0;
 		}
+
+	}
+	
+	public String executeCommand(String[] command) {
+		
+		//A proxy for the linux bash commands that are required.
+
+	    StringBuffer out = new StringBuffer();
+
+	    Process pro;
+	    try {
+	        pro = Runtime.getRuntime().exec(command);
+	        pro.waitFor();
+	        BufferedReader reader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+
+	        String line = "";           
+	        while ((line = reader.readLine())!= null) {
+	            out.append(line + "\n");
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return out.toString();
+
 	}
 	
 	public static void main(String[] args) {
