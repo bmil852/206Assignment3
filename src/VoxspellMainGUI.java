@@ -484,6 +484,7 @@ public class VoxspellMainGUI extends JPanel {
 					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
 						String[] com = new String[] {"bash", "-c", "echo " + "correct" + " | festival --tts" };
 						executeCommand(com);
+						
 						if (_attempt == 1) {
 							_currentScore++;
 						}
@@ -491,12 +492,18 @@ public class VoxspellMainGUI extends JPanel {
 						_currentWordIndex++;
 						scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
 						progressLabel.setText("PROGRESS: " + _currentWordIndex + " of 10");
+						
 					}
 					else{
 						String[] com = new String[] {"bash", "-c", "echo " + "incorrect" + " | festival --tts" };
 						executeCommand(com);
 						if (_attempt == 1){
 							_attempt++;
+							try {
+								Thread.sleep(1200);
+							} catch (InterruptedException e1) {
+								e1.printStackTrace();
+							}
 							com = new String[] {"bash", "-c", "echo " + "Try once more" + " | festival --tts" };
 							executeCommand(com);
 						}
@@ -517,6 +524,11 @@ public class VoxspellMainGUI extends JPanel {
 						repaint();
 					}
 					else{
+						try {
+							Thread.sleep(1200);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
 						String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 						executeCommand(com);
 					}
@@ -588,7 +600,7 @@ public class VoxspellMainGUI extends JPanel {
 			wordList.remove(number);
 		}
 		
-		String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
+		String[] com = new String[] {"bash", "-c", "echo " + "Please spell"+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 		executeCommand(com);
 		
 		
@@ -616,6 +628,7 @@ public class VoxspellMainGUI extends JPanel {
 
 	    BackgroundTask backgroundWorker = new BackgroundTask(command);
 	    backgroundWorker.execute();
+	    
 
 	}
 	
@@ -625,6 +638,7 @@ public class VoxspellMainGUI extends JPanel {
 		
 		public BackgroundTask(String[] str) {
 			_str = str;
+			
 		}
 		
 		@Override
@@ -633,6 +647,7 @@ public class VoxspellMainGUI extends JPanel {
 			ProcessBuilder builder = new ProcessBuilder(_str);
 			Process process = builder.start();
 			process.waitFor();
+			
 			
 			return null;
 		}
