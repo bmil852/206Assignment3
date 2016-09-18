@@ -484,7 +484,6 @@ public class VoxspellMainGUI extends JPanel {
 					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
 						String[] com = new String[] {"bash", "-c", "echo " + "correct" + " | festival --tts" };
 						executeCommand(com);
-						
 						if (_attempt == 1) {
 							_currentScore++;
 						}
@@ -492,7 +491,6 @@ public class VoxspellMainGUI extends JPanel {
 						_currentWordIndex++;
 						scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
 						progressLabel.setText("PROGRESS: " + _currentWordIndex + " of 10");
-						
 					}
 					else{
 						String[] com = new String[] {"bash", "-c", "echo " + "incorrect" + " | festival --tts" };
@@ -600,7 +598,7 @@ public class VoxspellMainGUI extends JPanel {
 			wordList.remove(number);
 		}
 		
-		String[] com = new String[] {"bash", "-c", "echo " + "Please spell"+ _quizList.get(_currentWordIndex) + " | festival --tts" };
+		String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 		executeCommand(com);
 		
 		
