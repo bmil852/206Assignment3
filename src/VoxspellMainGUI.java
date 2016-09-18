@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -22,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 @SuppressWarnings("serial")
@@ -607,7 +609,42 @@ public class VoxspellMainGUI extends JPanel {
 		else if (_stats[_currentLevel][2] != 1){
 			_stats[_currentLevel][2] = 0;
 		}
-
+		
+		//Add video reward
+		JButton normalVideo = new JButton("Play Video");
+		JButton additionalVideo = new JButton("Play Additional Video");
+		JButton exitVideo = new JButton("Exit");
+		normalVideo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//Play normal video
+			}
+		});
+		additionalVideo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//Play additional video
+			}
+		});
+		exitVideo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//Exit dialog
+				Window window = SwingUtilities.getWindowAncestor(exitVideo);
+			    if (window != null) {
+			      window.setVisible(false);
+			    }
+			}
+		});
+		if (_currentScore == 9) {
+			additionalVideo.setEnabled(false);
+		} else if (_currentScore < 9) {
+			additionalVideo.setEnabled(false);
+			normalVideo.setEnabled(false);
+		}
+		Object[] options = {normalVideo, additionalVideo, exitVideo};
+		JOptionPane.showOptionDialog(_currentFrame, "Score 9/10 to unlock video reward\nScore 10/10 to unlock additional video reward", "Finished Quiz!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[2]);
+		
 	}
 	
 	public void executeCommand(String[] command) {
