@@ -532,7 +532,7 @@ public class VoxspellMainGUI extends JPanel {
 						String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 						executeCommand(com);
 					}
-
+					_textBox.setText("");
 				}
 			});
 			
@@ -606,6 +606,19 @@ public class VoxspellMainGUI extends JPanel {
 		
 	}
 	
+	private void closeJOptionPane() {
+		Window[] windows = Window.getWindows();
+        for (Window window : windows) {
+            if (window instanceof JDialog) {
+                JDialog dialog = (JDialog) window;
+                if (dialog.getContentPane().getComponentCount() == 1
+                    && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
+                    dialog.dispose();
+                }
+            }
+        }
+	}
+	
 	private void finishQuiz(){
 		
 		_stats[_currentLevel][1] += _currentScore;
@@ -627,29 +640,22 @@ public class VoxspellMainGUI extends JPanel {
 		normalVideo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//Play normal video
+				closeJOptionPane();
+				new SpellingQuizMediaPlayer("src/resources/big_buck_bunny_1_minute.avi");
 			}
 		});
 		additionalVideo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//Play additional video
+				closeJOptionPane();
+				new SpellingQuizMediaPlayer("src/resources/big_buck_bunny_inverted_1_minute.avi");
 			}
 		});
 		exitVideo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				//Exit dialog
-				Window[] windows = Window.getWindows();
-	            for (Window window : windows) {
-	                if (window instanceof JDialog) {
-	                    JDialog dialog = (JDialog) window;
-	                    if (dialog.getContentPane().getComponentCount() == 1
-	                        && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
-	                        dialog.dispose();
-	                    }
-	                }
-	            }
+				closeJOptionPane();
 			}
 		});
 		if (_currentScore == 9) {
