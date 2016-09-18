@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -39,6 +40,7 @@ public class VoxspellMainGUI extends JPanel {
 	private static int _currentLevel;
 	private static int _currentScore;
 	private static int _attempt;
+	private static String _voice;
 	
 	public VoxspellMainGUI() {
 		_startButton = new JButton("Begin Quiz");
@@ -344,7 +346,7 @@ public class VoxspellMainGUI extends JPanel {
 	public class SettingsGUI extends JPanel {
 		
 		private JButton _returnButton = new JButton();
-		private String[] voiceOptions = new String[]{"Voice 1", "Voice 2"};
+		private String[] voiceOptions = new String[]{"Default", "New Zealand"};
 		private JComboBox<String> _voiceBox = new JComboBox<>(voiceOptions);
 		
 		public SettingsGUI() {
@@ -384,6 +386,22 @@ public class VoxspellMainGUI extends JPanel {
 					_currentFrame.add(new VoxspellMainGUI());
 					setVisible(false);
 					repaint();
+				}
+			});
+			
+			_voiceBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (_voiceBox.getSelectedItem().equals("Default")){
+						_voice = "kal_diphone";
+						festival f = new festival("Default");
+						f.execute();
+					}
+					else{
+						_voice = "akl_nz_jdt_diphone";
+						festival f = new festival("New Zealand");
+						f.execute();
+					}
 				}
 			});
 		}
@@ -473,8 +491,8 @@ public class VoxspellMainGUI extends JPanel {
 			_speechButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String[] com = new String[] {"bash", "-c", "echo " + "Please spell " + _quizList.get(_currentWordIndex) + " | festival --tts" };
-					executeCommand(com);
+					festival f = new festival("0");
+					f.execute();
 				}
 			});
 			
@@ -484,8 +502,8 @@ public class VoxspellMainGUI extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					
 					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
-						String[] com = new String[] {"bash", "-c", "echo " + "correct" + " | festival --tts" };
-						executeCommand(com);
+						festival f = new festival("1");
+						f.execute();
 						if (_attempt == 1) {
 							_currentScore++;
 						}
@@ -495,8 +513,8 @@ public class VoxspellMainGUI extends JPanel {
 						progressLabel.setText("PROGRESS: " + _currentWordIndex + " of 10");
 					}
 					else{
-						String[] com = new String[] {"bash", "-c", "echo " + "incorrect" + " | festival --tts" };
-						executeCommand(com);
+						festival f = new festival("2");
+						f.execute();
 						if (_attempt == 1){
 							_attempt++;
 							try {
@@ -504,8 +522,8 @@ public class VoxspellMainGUI extends JPanel {
 							} catch (InterruptedException e1) {
 								e1.printStackTrace();
 							}
-							com = new String[] {"bash", "-c", "echo " + "Try once more" + " | festival --tts" };
-							executeCommand(com);
+							festival f2 = new festival("3");
+							f2.execute();
 						}
 						else{
 							_currentWordIndex++;
@@ -529,8 +547,8 @@ public class VoxspellMainGUI extends JPanel {
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
 						}
-						String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
-						executeCommand(com);
+						festival f = new festival("0");
+						f.execute();
 					}
 
 				}
@@ -600,8 +618,8 @@ public class VoxspellMainGUI extends JPanel {
 			wordList.remove(number);
 		}
 		
-		String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
-		executeCommand(com);
+		festival f = new festival("0");
+		f.execute();
 		
 		
 	}
@@ -663,36 +681,80 @@ public class VoxspellMainGUI extends JPanel {
 		
 	}
 	
-	public void executeCommand(String[] command) {
+	public class festival extends SwingWorker<Void,Void> {
 		
-		//A proxy for the linux bash commands that are required.
-
-	    BackgroundTask backgroundWorker = new BackgroundTask(command);
-	    backgroundWorker.execute();
-	    
-
-	}
-	
-	private class BackgroundTask extends SwingWorker<Void, Void> {
-
-		String[] _str;
+		//mode 0 = "please spell 'word'"
+		//mode 1 = "Correct"
+		//mode 2 = "Incorrect"
+		//mode 3 = "Try Once More"
+		//mode 'voice type' eg. default = "This is the ___ voice"
+		String _mode;
 		
-		public BackgroundTask(String[] str) {
-			_str = str;
-			
+		public festival(String mode){
+			_mode = mode;
 		}
+		
 		
 		@Override
 		protected Void doInBackground() throws Exception {
-			
-			ProcessBuilder builder = new ProcessBuilder(_str);
-			Process process = builder.start();
-			process.waitFor();
-			
-			
+
+			if (_mode.equals("0")){
+				Runtime runtime = Runtime.getRuntime();
+				Process process = runtime.exec("festival --pipe");
+				OutputStream output = process.getOutputStream();
+				output.write(("(voice_" + _voice + ")n").getBytes());
+				output.flush();
+				output.write(("(SayText \"" + "Please Spell " + _quizList.get(_currentWordIndex) + "\")n").getBytes());
+				output.flush();
+				output.close();
+				process.waitFor();
+			}
+			else if(_mode.equals("1")){
+				Runtime runtime = Runtime.getRuntime();
+				Process process = runtime.exec("festival --pipe");
+				OutputStream output = process.getOutputStream();
+				output.write(("(voice_" + _voice + ")n").getBytes());
+				output.flush();
+				output.write(("(SayText \"" + "Correct" + "\")n").getBytes());
+				output.flush();
+				output.close();
+				process.waitFor();
+			}
+			else if (_mode.equals("2")){
+				Runtime runtime = Runtime.getRuntime();
+				Process process = runtime.exec("festival --pipe");
+				OutputStream output = process.getOutputStream();
+				output.write(("(voice_" + _voice + ")n").getBytes());
+				output.flush();
+				output.write(("(SayText \"" + "Incorrect" + "\")n").getBytes());
+				output.flush();
+				output.close();
+				process.waitFor();
+			}
+			else if (_mode.equals("3")){
+				Runtime runtime = Runtime.getRuntime();
+				Process process = runtime.exec("festival --pipe");
+				OutputStream output = process.getOutputStream();
+				output.write(("(voice_" + _voice + ")n").getBytes());
+				output.flush();
+				output.write(("(SayText \"" + "Try once more" + "\")n").getBytes());
+				output.flush();
+				output.close();
+				process.waitFor();
+			}
+			else{
+				Runtime runtime = Runtime.getRuntime();
+				Process process = runtime.exec("festival --pipe");
+				OutputStream output = process.getOutputStream();
+				output.write(("(voice_" + _voice + ")n").getBytes());
+				output.flush();
+				output.write(("(SayText \"" + "This is the " + _mode + " Voice" + "\")n").getBytes());
+				output.flush();
+				output.close();
+				process.waitFor();
+			}
 			return null;
 		}
-		
 	}
 	
 	public static void main(String[] args) {
@@ -704,6 +766,8 @@ public class VoxspellMainGUI extends JPanel {
 			_stats[i][1] = 0;
 			_stats[i][2] = -1;
 		}
+		
+		_voice = "voice_kal_diphone";
 		
 		//Create and show the GUI
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
