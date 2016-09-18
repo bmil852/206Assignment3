@@ -17,13 +17,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 @SuppressWarnings("serial")
@@ -640,10 +640,16 @@ public class VoxspellMainGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				//Exit dialog
-				Window window = SwingUtilities.getWindowAncestor(exitVideo);
-			    if (window != null) {
-			      window.setVisible(false);
-			    }
+				Window[] windows = Window.getWindows();
+	            for (Window window : windows) {
+	                if (window instanceof JDialog) {
+	                    JDialog dialog = (JDialog) window;
+	                    if (dialog.getContentPane().getComponentCount() == 1
+	                        && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
+	                        dialog.dispose();
+	                    }
+	                }
+	            }
 			}
 		});
 		if (_currentScore == 9) {
