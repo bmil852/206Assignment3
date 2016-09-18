@@ -636,7 +636,7 @@ public class VoxspellMainGUI extends JPanel {
 		//Add video reward
 		JButton normalVideo = new JButton("Play Video");
 		JButton additionalVideo = new JButton("Play Additional Video");
-		JButton exitVideo = new JButton("Exit");
+		JButton exitVideo = new JButton("Cancel");
 		normalVideo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
