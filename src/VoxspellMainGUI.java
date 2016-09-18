@@ -499,6 +499,11 @@ public class VoxspellMainGUI extends JPanel {
 						executeCommand(com);
 						if (_attempt == 1){
 							_attempt++;
+							try {
+								Thread.sleep(1200);
+							} catch (InterruptedException e1) {
+								e1.printStackTrace();
+							}
 							com = new String[] {"bash", "-c", "echo " + "Try once more" + " | festival --tts" };
 							executeCommand(com);
 						}
@@ -519,6 +524,11 @@ public class VoxspellMainGUI extends JPanel {
 						repaint();
 					}
 					else{
+						try {
+							Thread.sleep(1200);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
 						String[] com = new String[] {"bash", "-c", "echo " + "Please spell "+ _quizList.get(_currentWordIndex) + " | festival --tts" };
 						executeCommand(com);
 					}
@@ -653,6 +663,7 @@ public class VoxspellMainGUI extends JPanel {
 
 	    BackgroundTask backgroundWorker = new BackgroundTask(command);
 	    backgroundWorker.execute();
+	    
 
 	}
 	
@@ -662,6 +673,7 @@ public class VoxspellMainGUI extends JPanel {
 		
 		public BackgroundTask(String[] str) {
 			_str = str;
+			
 		}
 		
 		@Override
@@ -670,6 +682,7 @@ public class VoxspellMainGUI extends JPanel {
 			ProcessBuilder builder = new ProcessBuilder(_str);
 			Process process = builder.start();
 			process.waitFor();
+			
 			
 			return null;
 		}
