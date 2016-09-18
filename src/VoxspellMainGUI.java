@@ -504,9 +504,7 @@ public class VoxspellMainGUI extends JPanel {
 					if (_quizList.get(_currentWordIndex).equalsIgnoreCase(_textBox.getText())){
 						festival f = new festival("1");
 						f.execute();
-						if (_attempt == 1) {
-							_currentScore++;
-						}
+						_currentScore++;
 						_attempt = 1;
 						_currentWordIndex++;
 						scoreLabel.setText("SCORE: " + _currentScore + " out of " + _currentWordIndex);
