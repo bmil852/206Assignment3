@@ -17,6 +17,7 @@ To run Voxspell, simply execute VoxspellPrototype.jar.
 2. Program Instructions:
 
 Main Menu:
+
 When Voxspell starts, you will be presented with 2 options. Click "Begin Quiz"
 to start a new quiz, or press the gear in the top right to view the settings.
 The first time you start a quiz, you will be asked which level you would like to
@@ -24,11 +25,13 @@ start from. Choose one from the drop-down menu and press "OK" to continue, or
 "Back" to go back to the main menu.
 
 Settings:
+
 In this menu you are able to change the voice Voxspell speaks to you in. Simply
 choose a voice you like from the drop-down menu. Click the back button to return
 to the main menu.
 
 Quiz Select:
+
 In this menu you are able to choose the level of difficulty you would like to be
 tested on, starting from the level you previously selected. To unlock higher levels,
 you must first complete a spelling test from the previous level with an accuracy of
@@ -36,6 +39,7 @@ you must first complete a spelling test from the previous level with an accuracy
 to each level, as well as your overall accuracy for each level.
 
 Quiz:
+
 Here your spelling will be tested on a 10 random words from your selected level. The
 program will ask you to spell a particular word, and you can attempt to spell it by 
 typing your answer in the central textbox. Click the arrow button or press "enter" 
