@@ -1,4 +1,4 @@
-# 206Assignment3
+﻿# 206Assignment3
 # Voxspell Version 1.00 19/9/2016
 
 README
