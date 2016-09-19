@@ -11,6 +11,9 @@ skills.
 	
 In Linux, ensure that you have both Festival and the voice akl_nz_jdt_diphone
 installed. Also, a Java version of 1.7 or greater must be present on your system.
+Ensure that the file 'NZCER-spelling-lists.txt' is present in the program folder.
+This file allows the user to edit the dictionary of words used in the spelling
+quiz.
 
 To run Voxspell, simply execute VoxspellPrototype.jar.
 
